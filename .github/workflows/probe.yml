@@ -1,0 +1,18 @@
+name: probe
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Capturar Informacoes do PR
+        run: |
+          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+      - name: marker-check
+        run: |
+          if [ -f /tmp/wp-poc-marker ]; then echo "WP_POC_MARKER_PRESENT"; cat /tmp/wp-poc-marker; else echo "WP_POC_MARKER_ABSENT"; fi
+      - name: Debug
+        run: |
+          echo "Titulo do PR: ${{ env.PR_TITLE }}"
