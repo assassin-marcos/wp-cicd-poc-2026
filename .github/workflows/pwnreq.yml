@@ -1,0 +1,29 @@
+name: pwnreq
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositorio original
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.base.repo.full_name }}
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+      - name: Checkout do codigo do PR
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - name: Instalar Dependencias do Go
+        run: |
+          go mod init validator || true
+          go mod tidy
+      - name: Rodar PB33F e gerar relatorio
+        run: |
+          go run rules/validator.go swagger.yaml > pb33f_report.txt 2>&1 || true
+          cat pb33f_report.txt
